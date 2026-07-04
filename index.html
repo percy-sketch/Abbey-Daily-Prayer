@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>The Abbey Daily</title>
+<meta name="description" content="A daily verse, catechism, and prayer companion from The Abbey at Pawleys Island.">
+<meta name="theme-color" content="#3c5b3b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Abbey Daily">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --abbey-green:#3c5b3b;
+    --midnight:#00264d;
+    --sage:#8b9576;
+    --parchment:#d4c4ab;
+    --parchment-60:#e8dfce;
+    --parchment-field:#f3ede1;
+    --ochre:#b69564;
+    --ink:#26231c;
+    --serif:'EB Garamond', Garamond, 'Times New Roman', serif;
+    --sans:'Avenir Next', Avenir, 'Segoe UI', system-ui, sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{height:100%}
+  body{
+    font-family:var(--serif);
+    background:var(--parchment-field);
+    color:var(--ink);
+    min-height:100%;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- header ---------- */
+  header{
+    background:var(--abbey-green);
+    color:var(--parchment-60);
+    padding:calc(env(safe-area-inset-top) + 18px) 20px 16px;
+    text-align:center;
+  }
+  .wordmark{
+    font-family:var(--sans);
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:.34em;
+    text-transform:uppercase;
+    color:#f3ede1;
+  }
+  .wordmark span{color:var(--ochre)}
+  .dateline{
+    margin-top:8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+  }
+  .dateline .date{
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:16.5px;
+    color:var(--parchment);
+  }
+  .daynav{
+    background:none;border:1px solid rgba(212,196,171,.45);
+    color:var(--parchment);
+    width:30px;height:30px;border-radius:50%;
+    font-size:15px;line-height:1;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex:0 0 auto;
+  }
+  .daynav:active{background:rgba(212,196,171,.18)}
+  .today-btn{
+    display:none;
+    margin:9px auto 0;
+    background:none;border:none;
+    font-family:var(--sans);
+    font-size:10.5px;font-weight:600;
+    letter-spacing:.18em;text-transform:uppercase;
+    color:var(--ochre);
+    cursor:pointer;
+    padding:3px 8px;
+  }
+  .today-btn.show{display:inline-block}
+
+  /* ---------- layout ---------- */
+  main{
+    max-width:560px;
+    margin:0 auto;
+    padding:26px 22px calc(env(safe-area-inset-bottom) + 108px);
+  }
+  section{display:none}
+  section.active{display:block;animation:rise .35s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){section.active{animation:none}}
+
+  .eyebrow{
+    font-family:var(--sans);
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:.26em;
+    text-transform:uppercase;
+    color:var(--sage);
+    text-align:center;
+  }
+  .rule{
+    width:44px;height:1px;background:var(--ochre);
+    margin:14px auto 0;
+    position:relative;
+  }
+  .rule::after{
+    content:"";
+    position:absolute;left:50%;top:-2.5px;
+    width:6px;height:6px;
+    background:var(--ochre);
+    transform:translateX(-50%) rotate(45deg);
+  }
+
+  /* ---------- verse ---------- */
+  .verse-card{margin-top:30px;text-align:left}
+  .verse-text{
+    font-size:26px;
+    line-height:1.52;
+    color:var(--midnight);
+  }
+  .verse-text::first-letter{
+    font-size:2.55em;
+    line-height:.82;
+    float:left;
+    padding:6px 10px 0 0;
+    color:var(--ochre);
+    font-weight:500;
+  }
+  .verse-ref{
+    margin-top:26px;
+    font-family:var(--sans);
+    font-size:12.5px;
+    font-weight:600;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    color:var(--abbey-green);
+    text-align:right;
+  }
+  .verse-note{
+    margin-top:6px;
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:13.5px;
+    color:var(--sage);
+    text-align:right;
+  }
+
+  /* ---------- catechism ---------- */
+  .cat-card{margin-top:30px}
+  .cat-q{
+    font-size:22.5px;
+    font-weight:600;
+    line-height:1.4;
+    color:var(--midnight);
+  }
+  .cat-q .qmark, .cat-a .amark{
+    color:var(--ochre);
+    font-weight:600;
+    padding-right:8px;
+  }
+  .cat-a{
+    margin-top:20px;
+    font-size:19.5px;
+    line-height:1.62;
+  }
+  .cat-refs{
+    margin-top:20px;
+    font-size:15px;
+    font-style:italic;
+    color:var(--sage);
+    line-height:1.5;
+  }
+  .cat-source{
+    margin-top:30px;
+    padding-top:16px;
+    border-top:1px solid var(--parchment);
+    font-family:var(--sans);
+    font-size:10.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--sage);
+    text-align:center;
+    line-height:1.9;
+  }
+  .setup-card{
+    margin-top:30px;
+    background:var(--parchment-60);
+    border:1px solid var(--parchment);
+    border-radius:10px;
+    padding:22px;
+    font-size:17px;
+    line-height:1.6;
+  }
+  .setup-card code{
+    font-family:ui-monospace,Menlo,monospace;
+    font-size:14px;
+    background:#fff;
+    padding:1px 6px;
+    border-radius:4px;
+  }
+
+  /* ---------- prayer ---------- */
+  .pray-head{
+    margin-top:26px;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+  }
+  .pray-title{
+    font-size:21px;
+    font-weight:600;
+    color:var(--midnight);
+  }
+  .pray-progress{
+    font-family:var(--sans);
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:.12em;
+    color:var(--sage);
+  }
+  .pray-intro{
+    margin-top:6px;
+    font-style:italic;
+    font-size:15.5px;
+    color:var(--sage);
+  }
+  .pray-list{margin-top:18px;list-style:none}
+  .pray-row{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:14px 4px;
+    border-bottom:1px solid var(--parchment-60);
+    cursor:pointer;
+    user-select:none;-webkit-user-select:none;
+  }
+  .pmark{
+    flex:0 0 auto;
+    width:28px;height:28px;
+    border:1.5px solid var(--sage);
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    transition:all .18s ease;
+  }
+  .pmark svg{width:15px;height:15px;opacity:0;transform:scale(.6);transition:all .18s ease}
+  .pray-row.done .pmark{background:var(--abbey-green);border-color:var(--abbey-green)}
+  .pray-row.done .pmark svg{opacity:1;transform:scale(1)}
+  .pname{font-size:19.5px;line-height:1.3}
+  .pnote{
+    font-size:14.5px;
+    font-style:italic;
+    color:var(--sage);
+    margin-top:1px;
+  }
+  .pray-row.done .pname{color:var(--sage)}
+  .premove{
+    display:none;
+    margin-left:auto;
+    background:none;
+    border:none;
+    color:#a4432f;
+    font-family:var(--sans);
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:.08em;
+    cursor:pointer;
+    padding:8px;
+  }
+  body.editing .premove{display:block}
+  body.editing .pmark{opacity:.35}
+  .pray-empty{
+    margin-top:24px;
+    text-align:center;
+    font-style:italic;
+    font-size:17px;
+    color:var(--sage);
+    line-height:1.6;
+  }
+  .pray-done-note{
+    margin-top:22px;
+    text-align:center;
+    font-style:italic;
+    font-size:16.5px;
+    color:var(--abbey-green);
+    display:none;
+  }
+  .pray-done-note.show{display:block}
+  .pray-actions{
+    margin-top:24px;
+    display:flex;
+    gap:10px;
+  }
+  .btn{
+    font-family:var(--sans);
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    padding:12px 18px;
+    border-radius:8px;
+    border:1px solid var(--sage);
+    background:none;
+    color:var(--abbey-green);
+    cursor:pointer;
+  }
+  .btn.primary{
+    background:var(--abbey-green);
+    border-color:var(--abbey-green);
+    color:var(--parchment-field);
+  }
+  .add-form{
+    display:none;
+    margin-top:18px;
+    background:var(--parchment-60);
+    border:1px solid var(--parchment);
+    border-radius:10px;
+    padding:16px;
+  }
+  .add-form.show{display:block}
+  .add-form input{
+    width:100%;
+    font-family:var(--serif);
+    font-size:18px;
+    padding:11px 12px;
+    border:1px solid var(--parchment);
+    border-radius:7px;
+    background:#fffdf8;
+    color:var(--ink);
+    margin-bottom:10px;
+  }
+  .add-form input:focus{outline:2px solid var(--abbey-green);outline-offset:-1px}
+
+  /* ---------- tab bar ---------- */
+  nav{
+    position:fixed;
+    bottom:0;left:0;right:0;
+    background:#fffdf8;
+    border-top:1px solid var(--parchment);
+    display:flex;
+    justify-content:space-around;
+    padding:8px 6px calc(env(safe-area-inset-bottom) + 8px);
+  }
+  .tab{
+    flex:1;
+    max-width:170px;
+    background:none;border:none;
+    display:flex;flex-direction:column;align-items:center;gap:4px;
+    font-family:var(--sans);
+    font-size:10.5px;
+    font-weight:600;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--sage);
+    padding:6px 0 3px;
+    cursor:pointer;
+  }
+  .tab svg{width:23px;height:23px;stroke:currentColor}
+  .tab.active{color:var(--abbey-green)}
+  .tab:focus-visible{outline:2px solid var(--abbey-green);border-radius:8px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wordmark">The Abbey <span>&#10013;</span> Daily</div>
+  <div class="dateline">
+    <button class="daynav" id="prevDay" aria-label="Previous day">&#8249;</button>
+    <div class="date" id="dateline"></div>
+    <button class="daynav" id="nextDay" aria-label="Next day">&#8250;</button>
+  </div>
+  <button class="today-btn" id="todayBtn">Return to today</button>
+</header>
+
+<main>
+  <!-- VERSE -->
+  <section id="verse" class="active">
+    <div style="margin-top:2px" class="eyebrow" id="verseEyebrow"></div>
+    <div class="rule"></div>
+    <div class="verse-card">
+      <p class="verse-text" id="verseText"></p>
+      <div class="verse-ref" id="verseRef"></div>
+      <div class="verse-note">King James Version</div>
+    </div>
+  </section>
+
+  <!-- CATECHISM -->
+  <section id="catechism">
+    <div class="eyebrow" id="catEyebrow"></div>
+    <div class="rule"></div>
+    <div class="cat-card" id="catCard"></div>
+  </section>
+
+  <!-- PRAYER -->
+  <section id="prayer">
+    <div class="eyebrow">Daily Intercession</div>
+    <div class="rule"></div>
+    <div class="pray-head">
+      <div class="pray-title">My prayer list</div>
+      <div class="pray-progress" id="prayProgress"></div>
+    </div>
+    <p class="pray-intro">Tap each name as you pray. The list begins fresh each morning.</p>
+    <ul class="pray-list" id="prayList"></ul>
+    <p class="pray-empty" id="prayEmpty" style="display:none">
+      No one on your list yet.<br>Add the people you carry before the Lord each day.
+    </p>
+    <p class="pray-done-note" id="prayDone">&#10013; You have prayed for everyone today.</p>
+    <div class="pray-actions">
+      <button class="btn primary" id="addBtn">+ Add a person</button>
+      <button class="btn" id="editBtn">Edit list</button>
+    </div>
+    <div class="add-form" id="addForm">
+      <input type="text" id="nameInput" placeholder="Name" autocomplete="off" maxlength="60">
+      <input type="text" id="noteInput" placeholder="Prayer focus (optional)" autocomplete="off" maxlength="90">
+      <div style="display:flex;gap:10px">
+        <button class="btn primary" id="saveBtn">Add to list</button>
+        <button class="btn" id="cancelBtn">Cancel</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<nav>
+  <button class="tab active" data-tab="verse" aria-label="Daily verse">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4.5C4.5 3.4 7 3.4 9.5 4.5c1 .45 1.7 1 2.5 1.8.8-.8 1.5-1.35 2.5-1.8 2.5-1.1 5-1.1 7.5 0v14c-2.5-1.1-5-1.1-7.5 0-1 .45-1.7 1-2.5 1.8-.8-.8-1.5-1.35-2.5-1.8-2.5-1.1-5-1.1-7.5 0v-14Z"/><path d="M12 6.3v14"/></svg>
+    Verse
+  </button>
+  <button class="tab" data-tab="catechism" aria-label="Daily catechism">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 9a3 3 0 0 1 5.8 1c0 2-3 2.6-3 4.5"/><path d="M12 18h.01"/><circle cx="12" cy="12" r="9.2"/></svg>
+    Catechism
+  </button>
+  <button class="tab" data-tab="prayer" aria-label="Prayer list">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.2v17.6"/><path d="M5.6 8.4h12.8"/><path d="M8.2 20.8h7.6"/></svg>
+    Prayer
+  </button>
+</nav>
+
+<script>
+/* ============ THE WORD — 365 verses (KJV, public domain) ============ */
+const VERSES = [{"r":"Genesis 1:1","t":"In the beginning God created the heaven and the earth."},{"r":"Genesis 1:27","t":"So God created man in his own image, in the image of God created he him; male and female created he them."},{"r":"Genesis 1:31","t":"And God saw every thing that he had made, and, behold, it was very good. And the evening and the morning were the sixth day."},{"r":"Genesis 2:24","t":"Therefore shall a man leave his father and his mother, and shall cleave unto his wife: and they shall be one flesh."},{"r":"Genesis 3:15","t":"And I will put enmity between thee and the woman, and between thy seed and her seed; it shall bruise thy head, and thou shalt bruise his heel."},{"r":"Genesis 8:22","t":"While the earth remaineth, seedtime and harvest, and cold and heat, and summer and winter, and day and night shall not cease."},{"r":"Genesis 9:13","t":"I do set my bow in the cloud, and it shall be for a token of a covenant between me and the earth."},{"r":"Genesis 12:2","t":"And I will make of thee a great nation, and I will bless thee, and make thy name great; and thou shalt be a blessing:"},{"r":"Genesis 15:6","t":"And he believed in the LORD; and he counted it to him for righteousness."},{"r":"Genesis 28:15","t":"And, behold, I am with thee, and will keep thee in all places whither thou goest, and will bring thee again into this land; for I will not leave thee, until I have done that which I have spoken to thee of."},{"r":"Genesis 50:20","t":"But as for you, ye thought evil against me; but God meant it unto good, to bring to pass, as it is this day, to save much people alive."},{"r":"Exodus 3:14","t":"And God said unto Moses, I AM THAT I AM: and he said, Thus shalt thou say unto the children of Israel, I AM hath sent me unto you."},{"r":"Exodus 14:14","t":"The LORD shall fight for you, and ye shall hold your peace."},{"r":"Exodus 15:2","t":"The LORD is my strength and song, and he is become my salvation: he is my God, and I will prepare him an habitation; my father’s God, and I will exalt him."},{"r":"Exodus 19:5","t":"Now therefore, if ye will obey my voice indeed, and keep my covenant, then ye shall be a peculiar treasure unto me above all people: for all the earth is mine:"},{"r":"Exodus 20:3","t":"Thou shalt have no other gods before me."},{"r":"Exodus 20:8","t":"Remember the sabbath day, to keep it holy."},{"r":"Exodus 33:14","t":"And he said, My presence shall go with thee, and I will give thee rest."},{"r":"Exodus 34:6","t":"And the LORD passed by before him, and proclaimed, The LORD, The LORD God, merciful and gracious, longsuffering, and abundant in goodness and truth,"},{"r":"Leviticus 19:18","t":"Thou shalt not avenge, nor bear any grudge against the children of thy people, but thou shalt love thy neighbour as thyself: I am the LORD."},{"r":"Leviticus 20:26","t":"And ye shall be holy unto me: for I the LORD am holy, and have severed you from other people, that ye should be mine."},{"r":"Numbers 6:24–26","t":"The LORD bless thee, and keep thee: The LORD make his face shine upon thee, and be gracious unto thee: The LORD lift up his countenance upon thee, and give thee peace."},{"r":"Numbers 23:19","t":"God is not a man, that he should lie; neither the son of man, that he should repent: hath he said, and shall he not do it? or hath he spoken, and shall he not make it good?"},{"r":"Deuteronomy 6:4–5","t":"Hear, O Israel: The LORD our God is one LORD: And thou shalt love the LORD thy God with all thine heart, and with all thy soul, and with all thy might."},{"r":"Deuteronomy 7:9","t":"Know therefore that the LORD thy God, he is God, the faithful God, which keepeth covenant and mercy with them that love him and keep his commandments to a thousand generations;"},{"r":"Deuteronomy 8:3","t":"And he humbled thee, and suffered thee to hunger, and fed thee with manna, which thou knewest not, neither did thy fathers know; that he might make thee know that man doth not live by bread only, but by every word that proceedeth out of the mouth of the LORD doth man live."},{"r":"Deuteronomy 30:19","t":"I call heaven and earth to record this day against you, that I have set before you life and death, blessing and cursing: therefore choose life, that both thou and thy seed may live:"},{"r":"Deuteronomy 31:6","t":"Be strong and of a good courage, fear not, nor be afraid of them: for the LORD thy God, he it is that doth go with thee; he will not fail thee, nor forsake thee."},{"r":"Deuteronomy 31:8","t":"And the LORD, he it is that doth go before thee; he will be with thee, he will not fail thee, neither forsake thee: fear not, neither be dismayed."},{"r":"Deuteronomy 33:27","t":"The eternal God is thy refuge, and underneath are the everlasting arms: and he shall thrust out the enemy from before thee; and shall say, Destroy them."},{"r":"Joshua 1:8","t":"This book of the law shall not depart out of thy mouth; but thou shalt meditate therein day and night, that thou mayest observe to do according to all that is written therein: for then thou shalt make thy way prosperous, and then thou shalt have good success."},{"r":"Joshua 1:9","t":"Have not I commanded thee? Be strong and of a good courage; be not afraid, neither be thou dismayed: for the LORD thy God is with thee whithersoever thou goest."},{"r":"Joshua 21:45","t":"There failed not ought of any good thing which the LORD had spoken unto the house of Israel; all came to pass."},{"r":"Joshua 24:15","t":"And if it seem evil unto you to serve the LORD, choose you this day whom ye will serve; whether the gods which your fathers served that were on the other side of the flood, or the gods of the Amorites, in whose land ye dwell: but as for me and my house, we will serve the LORD."},{"r":"Ruth 1:16","t":"And Ruth said, Intreat me not to leave thee, or to return from following after thee: for whither thou goest, I will go; and where thou lodgest, I will lodge: thy people shall be my people, and thy God my God:"},{"r":"1 Samuel 15:22","t":"And Samuel said, Hath the LORD as great delight in burnt offerings and sacrifices, as in obeying the voice of the LORD? Behold, to obey is better than sacrifice, and to hearken than the fat of rams."},{"r":"1 Samuel 16:7","t":"But the LORD said unto Samuel, Look not on his countenance, or on the height of his stature; because I have refused him: for the LORD seeth not as man seeth; for man looketh on the outward appearance, but the LORD looketh on the heart."},{"r":"2 Samuel 22:31","t":"As for God, his way is perfect; the word of the LORD is tried: he is a buckler to all them that trust in him."},{"r":"1 Kings 19:12","t":"And after the earthquake a fire; but the LORD was not in the fire: and after the fire a still small voice."},{"r":"1 Chronicles 16:11","t":"Seek the LORD and his strength, seek his face continually."},{"r":"1 Chronicles 16:34","t":"O give thanks unto the LORD; for he is good; for his mercy endureth for ever."},{"r":"2 Chronicles 7:14","t":"If my people, which are called by my name, shall humble themselves, and pray, and seek my face, and turn from their wicked ways; then will I hear from heaven, and will forgive their sin, and will heal their land."},{"r":"2 Chronicles 16:9","t":"For the eyes of the LORD run to and fro throughout the whole earth, to shew himself strong in the behalf of them whose heart is perfect toward him. Herein thou hast done foolishly: therefore from henceforth thou shalt have wars."},{"r":"2 Chronicles 20:15","t":"And he said, Hearken ye, all Judah, and ye inhabitants of Jerusalem, and thou king Jehoshaphat, Thus saith the LORD unto you, Be not afraid nor dismayed by reason of this great multitude; for the battle is not yours, but God’s."},{"r":"Nehemiah 8:10","t":"Then he said unto them, Go your way, eat the fat, and drink the sweet, and send portions unto them for whom nothing is prepared: for this day is holy unto our LORD: neither be ye sorry; for the joy of the LORD is your strength."},{"r":"Esther 4:14","t":"For if thou altogether holdest thy peace at this time, then shall there enlargement and deliverance arise to the Jews from another place; but thou and thy father’s house shall be destroyed: and who knoweth whether thou art come to the kingdom for such a time as this?"},{"r":"Job 1:21","t":"And said, Naked came I out of my mother’s womb, and naked shall I return thither: the LORD gave, and the LORD hath taken away; blessed be the name of the LORD."},{"r":"Job 19:25","t":"For I know that my redeemer liveth, and that he shall stand at the latter day upon the earth:"},{"r":"Job 23:10","t":"But he knoweth the way that I take: when he hath tried me, I shall come forth as gold."},{"r":"Job 42:2","t":"I know that thou canst do every thing, and that no thought can be withholden from thee."},{"r":"Psalm 1:1–2","t":"Blessed is the man that walketh not in the counsel of the ungodly, nor standeth in the way of sinners, nor sitteth in the seat of the scornful. But his delight is in the law of the LORD; and in his law doth he meditate day and night."},{"r":"Psalm 4:8","t":"I will both lay me down in peace, and sleep: for thou, LORD, only makest me dwell in safety."},{"r":"Psalm 8:1","t":"O LORD, our Lord, how excellent is thy name in all the earth! who hast set thy glory above the heavens."},{"r":"Psalm 16:11","t":"Thou wilt shew me the path of life: in thy presence is fulness of joy; at thy right hand there are pleasures for evermore."},{"r":"Psalm 18:2","t":"The LORD is my rock, and my fortress, and my deliverer; my God, my strength, in whom I will trust; my buckler, and the horn of my salvation, and my high tower."},{"r":"Psalm 19:1","t":"The heavens declare the glory of God; and the firmament sheweth his handywork."},{"r":"Psalm 19:14","t":"Let the words of my mouth, and the meditation of my heart, be acceptable in thy sight, O LORD, my strength, and my redeemer."},{"r":"Psalm 23:1","t":"The LORD is my shepherd; I shall not want."},{"r":"Psalm 23:4","t":"Yea, though I walk through the valley of the shadow of death, I will fear no evil: for thou art with me; thy rod and thy staff they comfort me."},{"r":"Psalm 23:6","t":"Surely goodness and mercy shall follow me all the days of my life: and I will dwell in the house of the LORD for ever."},{"r":"Psalm 24:1","t":"The earth is the LORD’s, and the fulness thereof; the world, and they that dwell therein."},{"r":"Psalm 27:1","t":"The LORD is my light and my salvation; whom shall I fear? the LORD is the strength of my life; of whom shall I be afraid?"},{"r":"Psalm 27:4","t":"One thing have I desired of the LORD, that will I seek after; that I may dwell in the house of the LORD all the days of my life, to behold the beauty of the LORD, and to enquire in his temple."},{"r":"Psalm 27:14","t":"Wait on the LORD: be of good courage, and he shall strengthen thine heart: wait, I say, on the LORD."},{"r":"Psalm 30:5","t":"For his anger endureth but a moment; in his favour is life: weeping may endure for a night, but joy cometh in the morning."},{"r":"Psalm 32:8","t":"I will instruct thee and teach thee in the way which thou shalt go: I will guide thee with mine eye."},{"r":"Psalm 34:8","t":"O taste and see that the LORD is good: blessed is the man that trusteth in him."},{"r":"Psalm 34:18","t":"The LORD is nigh unto them that are of a broken heart; and saveth such as be of a contrite spirit."},{"r":"Psalm 37:4","t":"Delight thyself also in the LORD: and he shall give thee the desires of thine heart."},{"r":"Psalm 42:1","t":"As the hart panteth after the water brooks, so panteth my soul after thee, O God."},{"r":"Psalm 46:1","t":"God is our refuge and strength, a very present help in trouble."},{"r":"Psalm 46:10","t":"Be still, and know that I am God: I will be exalted among the heathen, I will be exalted in the earth."},{"r":"Psalm 51:10","t":"Create in me a clean heart, O God; and renew a right spirit within me."},{"r":"Psalm 55:22","t":"Cast thy burden upon the LORD, and he shall sustain thee: he shall never suffer the righteous to be moved."},{"r":"Psalm 56:3","t":"What time I am afraid, I will trust in thee."},{"r":"Psalm 63:1","t":"O God, thou art my God; early will I seek thee: my soul thirsteth for thee, my flesh longeth for thee in a dry and thirsty land, where no water is;"},{"r":"Psalm 73:26","t":"My flesh and my heart faileth: but God is the strength of my heart, and my portion for ever."},{"r":"Psalm 84:10","t":"For a day in thy courts is better than a thousand. I had rather be a doorkeeper in the house of my God, than to dwell in the tents of wickedness."},{"r":"Psalm 86:5","t":"For thou, Lord, art good, and ready to forgive; and plenteous in mercy unto all them that call upon thee."},{"r":"Psalm 90:12","t":"So teach us to number our days, that we may apply our hearts unto wisdom."},{"r":"Psalm 91:1–2","t":"He that dwelleth in the secret place of the most High shall abide under the shadow of the Almighty. I will say of the LORD, He is my refuge and my fortress: my God; in him will I trust."},{"r":"Psalm 100:4–5","t":"Enter into his gates with thanksgiving, and into his courts with praise: be thankful unto him, and bless his name. For the LORD is good; his mercy is everlasting; and his truth endureth to all generations."},{"r":"Psalm 103:1","t":"Bless the LORD, O my soul: and all that is within me, bless his holy name."},{"r":"Psalm 103:8","t":"The LORD is merciful and gracious, slow to anger, and plenteous in mercy."},{"r":"Psalm 103:12","t":"As far as the east is from the west, so far hath he removed our transgressions from us."},{"r":"Psalm 107:1","t":"O give thanks unto the LORD, for he is good: for his mercy endureth for ever."},{"r":"Psalm 118:24","t":"This is the day which the LORD hath made; we will rejoice and be glad in it."},{"r":"Psalm 119:11","t":"Thy word have I hid in mine heart, that I might not sin against thee."},{"r":"Psalm 119:105","t":"Thy word is a lamp unto my feet, and a light unto my path."},{"r":"Psalm 121:1–2","t":"I will lift up mine eyes unto the hills, from whence cometh my help. My help cometh from the LORD, which made heaven and earth."},{"r":"Psalm 127:1","t":"Except the LORD build the house, they labour in vain that build it: except the LORD keep the city, the watchman waketh but in vain."},{"r":"Psalm 133:1","t":"Behold, how good and how pleasant it is for brethren to dwell together in unity!"},{"r":"Psalm 136:1","t":"O give thanks unto the LORD; for he is good: for his mercy endureth for ever."},{"r":"Psalm 139:14","t":"I will praise thee; for I am fearfully and wonderfully made: marvellous are thy works; and that my soul knoweth right well."},{"r":"Psalm 139:23–24","t":"Search me, O God, and know my heart: try me, and know my thoughts: And see if there be any wicked way in me, and lead me in the way everlasting."},{"r":"Psalm 145:8–9","t":"The LORD is gracious, and full of compassion; slow to anger, and of great mercy. The LORD is good to all: and his tender mercies are over all his works."},{"r":"Psalm 147:3","t":"He healeth the broken in heart, and bindeth up their wounds."},{"r":"Psalm 150:6","t":"Let every thing that hath breath praise the LORD. Praise ye the LORD."},{"r":"Proverbs 1:7","t":"The fear of the LORD is the beginning of knowledge: but fools despise wisdom and instruction."},{"r":"Proverbs 3:5–6","t":"Trust in the LORD with all thine heart; and lean not unto thine own understanding. In all thy ways acknowledge him, and he shall direct thy paths."},{"r":"Proverbs 3:9","t":"Honour the LORD with thy substance, and with the firstfruits of all thine increase:"},{"r":"Proverbs 4:23","t":"Keep thy heart with all diligence; for out of it are the issues of life."},{"r":"Proverbs 9:10","t":"The fear of the LORD is the beginning of wisdom: and the knowledge of the holy is understanding."},{"r":"Proverbs 11:25","t":"The liberal soul shall be made fat: and he that watereth shall be watered also himself."},{"r":"Proverbs 15:1","t":"A soft answer turneth away wrath: but grievous words stir up anger."},{"r":"Proverbs 16:3","t":"Commit thy works unto the LORD, and thy thoughts shall be established."},{"r":"Proverbs 16:9","t":"A man’s heart deviseth his way: but the LORD directeth his steps."},{"r":"Proverbs 16:18","t":"Pride goeth before destruction, and an haughty spirit before a fall."},{"r":"Proverbs 17:17","t":"A friend loveth at all times, and a brother is born for adversity."},{"r":"Proverbs 17:22","t":"A merry heart doeth good like a medicine: but a broken spirit drieth the bones."},{"r":"Proverbs 18:10","t":"The name of the LORD is a strong tower: the righteous runneth into it, and is safe."},{"r":"Proverbs 18:24","t":"A man that hath friends must shew himself friendly: and there is a friend that sticketh closer than a brother."},{"r":"Proverbs 22:6","t":"Train up a child in the way he should go: and when he is old, he will not depart from it."},{"r":"Proverbs 27:17","t":"Iron sharpeneth iron; so a man sharpeneth the countenance of his friend."},{"r":"Proverbs 31:30","t":"Favour is deceitful, and beauty is vain: but a woman that feareth the LORD, she shall be praised."},{"r":"Ecclesiastes 3:1","t":"To every thing there is a season, and a time to every purpose under the heaven:"},{"r":"Ecclesiastes 3:11","t":"He hath made every thing beautiful in his time: also he hath set the world in their heart, so that no man can find out the work that God maketh from the beginning to the end."},{"r":"Ecclesiastes 4:9–10","t":"Two are better than one; because they have a good reward for their labour. For if they fall, the one will lift up his fellow: but woe to him that is alone when he falleth; for he hath not another to help him up."},{"r":"Ecclesiastes 12:13","t":"Let us hear the conclusion of the whole matter: Fear God, and keep his commandments: for this is the whole duty of man."},{"r":"Song of Solomon 8:7","t":"Many waters cannot quench love, neither can the floods drown it: if a man would give all the substance of his house for love, it would utterly be contemned."},{"r":"Isaiah 1:18","t":"Come now, and let us reason together, saith the LORD: though your sins be as scarlet, they shall be as white as snow; though they be red like crimson, they shall be as wool."},{"r":"Isaiah 6:3","t":"And one cried unto another, and said, Holy, holy, holy, is the LORD of hosts: the whole earth is full of his glory."},{"r":"Isaiah 6:8","t":"Also I heard the voice of the Lord, saying, Whom shall I send, and who will go for us? Then said I, Here am I; send me."},{"r":"Isaiah 7:14","t":"Therefore the Lord himself shall give you a sign; Behold, a virgin shall conceive, and bear a son, and shall call his name Immanuel."},{"r":"Isaiah 9:6","t":"For unto us a child is born, unto us a son is given: and the government shall be upon his shoulder: and his name shall be called Wonderful, Counsellor, The mighty God, The everlasting Father, The Prince of Peace."},{"r":"Isaiah 26:3","t":"Thou wilt keep him in perfect peace, whose mind is stayed on thee: because he trusteth in thee."},{"r":"Isaiah 30:21","t":"And thine ears shall hear a word behind thee, saying, This is the way, walk ye in it, when ye turn to the right hand, and when ye turn to the left."},{"r":"Isaiah 40:8","t":"The grass withereth, the flower fadeth: but the word of our God shall stand for ever."},{"r":"Isaiah 40:28","t":"Hast thou not known? hast thou not heard, that the everlasting God, the LORD, the Creator of the ends of the earth, fainteth not, neither is weary? there is no searching of his understanding."},{"r":"Isaiah 40:31","t":"But they that wait upon the LORD shall renew their strength; they shall mount up with wings as eagles; they shall run, and not be weary; and they shall walk, and not faint."},{"r":"Isaiah 41:10","t":"Fear thou not; for I am with thee: be not dismayed; for I am thy God: I will strengthen thee; yea, I will help thee; yea, I will uphold thee with the right hand of my righteousness."},{"r":"Isaiah 43:1","t":"But now thus saith the LORD that created thee, O Jacob, and he that formed thee, O Israel, Fear not: for I have redeemed thee, I have called thee by thy name; thou art mine."},{"r":"Isaiah 43:2","t":"When thou passest through the waters, I will be with thee; and through the rivers, they shall not overflow thee: when thou walkest through the fire, thou shalt not be burned; neither shall the flame kindle upon thee."},{"r":"Isaiah 53:5","t":"But he was wounded for our transgressions, he was bruised for our iniquities: the chastisement of our peace was upon him; and with his stripes we are healed."},{"r":"Isaiah 53:6","t":"All we like sheep have gone astray; we have turned every one to his own way; and the LORD hath laid on him the iniquity of us all."},{"r":"Isaiah 55:6","t":"Seek ye the LORD while he may be found, call ye upon him while he is near:"},{"r":"Isaiah 55:8–9","t":"For my thoughts are not your thoughts, neither are your ways my ways, saith the LORD. For as the heavens are higher than the earth, so are my ways higher than your ways, and my thoughts than your thoughts."},{"r":"Isaiah 55:11","t":"So shall my word be that goeth forth out of my mouth: it shall not return unto me void, but it shall accomplish that which I please, and it shall prosper in the thing whereto I sent it."},{"r":"Isaiah 61:1","t":"The Spirit of the Lord GOD is upon me; because the LORD hath anointed me to preach good tidings unto the meek; he hath sent me to bind up the brokenhearted, to proclaim liberty to the captives, and the opening of the prison to them that are bound;"},{"r":"Isaiah 64:8","t":"But now, O LORD, thou art our father; we are the clay, and thou our potter; and we all are the work of thy hand."},{"r":"Jeremiah 1:5","t":"Before I formed thee in the belly I knew thee; and before thou camest forth out of the womb I sanctified thee, and I ordained thee a prophet unto the nations."},{"r":"Jeremiah 17:7–8","t":"Blessed is the man that trusteth in the LORD, and whose hope the LORD is. For he shall be as a tree planted by the waters, and that spreadeth out her roots by the river, and shall not see when heat cometh, but her leaf shall be green; and shall not be careful in the year of drought, neither shall cease from yielding fruit."},{"r":"Jeremiah 29:11","t":"For I know the thoughts that I think toward you, saith the LORD, thoughts of peace, and not of evil, to give you an expected end."},{"r":"Jeremiah 29:13","t":"And ye shall seek me, and find me, when ye shall search for me with all your heart."},{"r":"Jeremiah 31:3","t":"The LORD hath appeared of old unto me, saying, Yea, I have loved thee with an everlasting love: therefore with lovingkindness have I drawn thee."},{"r":"Jeremiah 32:17","t":"Ah Lord GOD! behold, thou hast made the heaven and the earth by thy great power and stretched out arm, and there is nothing too hard for thee:"},{"r":"Jeremiah 33:3","t":"Call unto me, and I will answer thee, and shew thee great and mighty things, which thou knowest not."},{"r":"Lamentations 3:22–23","t":"It is of the LORD’s mercies that we are not consumed, because his compassions fail not. They are new every morning: great is thy faithfulness."},{"r":"Lamentations 3:25","t":"The LORD is good unto them that wait for him, to the soul that seeketh him."},{"r":"Ezekiel 36:26","t":"A new heart also will I give you, and a new spirit will I put within you: and I will take away the stony heart out of your flesh, and I will give you an heart of flesh."},{"r":"Daniel 12:3","t":"And they that be wise shall shine as the brightness of the firmament; and they that turn many to righteousness as the stars for ever and ever."},{"r":"Hosea 6:3","t":"Then shall we know, if we follow on to know the LORD: his going forth is prepared as the morning; and he shall come unto us as the rain, as the latter and former rain unto the earth."},{"r":"Joel 2:13","t":"And rend your heart, and not your garments, and turn unto the LORD your God: for he is gracious and merciful, slow to anger, and of great kindness, and repenteth him of the evil."},{"r":"Joel 2:28","t":"And it shall come to pass afterward, that I will pour out my spirit upon all flesh; and your sons and your daughters shall prophesy, your old men shall dream dreams, your young men shall see visions:"},{"r":"Amos 5:24","t":"But let judgment run down as waters, and righteousness as a mighty stream."},{"r":"Jonah 2:9","t":"But I will sacrifice unto thee with the voice of thanksgiving; I will pay that that I have vowed. Salvation is of the LORD."},{"r":"Micah 6:8","t":"He hath shewed thee, O man, what is good; and what doth the LORD require of thee, but to do justly, and to love mercy, and to walk humbly with thy God?"},{"r":"Micah 7:18","t":"Who is a God like unto thee, that pardoneth iniquity, and passeth by the transgression of the remnant of his heritage? he retaineth not his anger for ever, because he delighteth in mercy."},{"r":"Nahum 1:7","t":"The LORD is good, a strong hold in the day of trouble; and he knoweth them that trust in him."},{"r":"Habakkuk 3:18","t":"Yet I will rejoice in the LORD, I will joy in the God of my salvation."},{"r":"Zephaniah 3:17","t":"The LORD thy God in the midst of thee is mighty; he will save, he will rejoice over thee with joy; he will rest in his love, he will joy over thee with singing."},{"r":"Zechariah 4:6","t":"Then he answered and spake unto me, saying, This is the word of the LORD unto Zerubbabel, saying, Not by might, nor by power, but by my spirit, saith the LORD of hosts."},{"r":"Malachi 3:6","t":"For I am the LORD, I change not; therefore ye sons of Jacob are not consumed."},{"r":"Malachi 3:10","t":"Bring ye all the tithes into the storehouse, that there may be meat in mine house, and prove me now herewith, saith the LORD of hosts, if I will not open you the windows of heaven, and pour you out a blessing, that there shall not be room enough to receive it."},{"r":"Matthew 1:23","t":"Behold, a virgin shall be with child, and shall bring forth a son, and they shall call his name Emmanuel, which being interpreted is, God with us."},{"r":"Matthew 4:4","t":"But he answered and said, It is written, Man shall not live by bread alone, but by every word that proceedeth out of the mouth of God."},{"r":"Matthew 5:3","t":"Blessed are the poor in spirit: for theirs is the kingdom of heaven."},{"r":"Matthew 5:8","t":"Blessed are the pure in heart: for they shall see God."},{"r":"Matthew 5:9","t":"Blessed are the peacemakers: for they shall be called the children of God."},{"r":"Matthew 5:14","t":"Ye are the light of the world. A city that is set on an hill cannot be hid."},{"r":"Matthew 5:16","t":"Let your light so shine before men, that they may see your good works, and glorify your Father which is in heaven."},{"r":"Matthew 5:44","t":"But I say unto you, Love your enemies, bless them that curse you, do good to them that hate you, and pray for them which despitefully use you, and persecute you;"},{"r":"Matthew 6:9–10","t":"After this manner therefore pray ye: Our Father which art in heaven, Hallowed be thy name. Thy kingdom come. Thy will be done in earth, as it is in heaven."},{"r":"Matthew 6:26","t":"Behold the fowls of the air: for they sow not, neither do they reap, nor gather into barns; yet your heavenly Father feedeth them. Are ye not much better than they?"},{"r":"Matthew 6:33","t":"But seek ye first the kingdom of God, and his righteousness; and all these things shall be added unto you."},{"r":"Matthew 6:34","t":"Take therefore no thought for the morrow: for the morrow shall take thought for the things of itself. Sufficient unto the day is the evil thereof."},{"r":"Matthew 7:7","t":"Ask, and it shall be given you; seek, and ye shall find; knock, and it shall be opened unto you:"},{"r":"Matthew 7:12","t":"Therefore all things whatsoever ye would that men should do to you, do ye even so to them: for this is the law and the prophets."},{"r":"Matthew 11:28","t":"Come unto me, all ye that labour and are heavy laden, and I will give you rest."},{"r":"Matthew 11:29–30","t":"Take my yoke upon you, and learn of me; for I am meek and lowly in heart: and ye shall find rest unto your souls. For my yoke is easy, and my burden is light."},{"r":"Matthew 16:26","t":"For what is a man profited, if he shall gain the whole world, and lose his own soul? or what shall a man give in exchange for his soul?"},{"r":"Matthew 18:20","t":"For where two or three are gathered together in my name, there am I in the midst of them."},{"r":"Matthew 19:26","t":"But Jesus beheld them, and said unto them, With men this is impossible; but with God all things are possible."},{"r":"Matthew 22:37–39","t":"Jesus said unto him, Thou shalt love the Lord thy God with all thy heart, and with all thy soul, and with all thy mind. This is the first and great commandment. And the second is like unto it, Thou shalt love thy neighbour as thyself."},{"r":"Matthew 25:40","t":"And the King shall answer and say unto them, Verily I say unto you, Inasmuch as ye have done it unto one of the least of these my brethren, ye have done it unto me."},{"r":"Matthew 28:19–20","t":"Go ye therefore, and teach all nations, baptizing them in the name of the Father, and of the Son, and of the Holy Ghost: Teaching them to observe all things whatsoever I have commanded you: and, lo, I am with you alway, even unto the end of the world. Amen."},{"r":"Mark 1:15","t":"And saying, The time is fulfilled, and the kingdom of God is at hand: repent ye, and believe the gospel."},{"r":"Mark 8:36","t":"For what shall it profit a man, if he shall gain the whole world, and lose his own soul?"},{"r":"Mark 9:35","t":"And he sat down, and called the twelve, and saith unto them, If any man desire to be first, the same shall be last of all, and servant of all."},{"r":"Mark 10:27","t":"And Jesus looking upon them saith, With men it is impossible, but not with God: for with God all things are possible."},{"r":"Mark 10:45","t":"For even the Son of man came not to be ministered unto, but to minister, and to give his life a ransom for many."},{"r":"Mark 11:24","t":"Therefore I say unto you, What things soever ye desire, when ye pray, believe that ye receive them, and ye shall have them."},{"r":"Luke 1:37","t":"For with God nothing shall be impossible."},{"r":"Luke 2:10–11","t":"And the angel said unto them, Fear not: for, behold, I bring you good tidings of great joy, which shall be to all people. For unto you is born this day in the city of David a Saviour, which is Christ the Lord."},{"r":"Luke 2:14","t":"Glory to God in the highest, and on earth peace, good will toward men."},{"r":"Luke 6:31","t":"And as ye would that men should do to you, do ye also to them likewise."},{"r":"Luke 6:38","t":"Give, and it shall be given unto you; good measure, pressed down, and shaken together, and running over, shall men give into your bosom. For with the same measure that ye mete withal it shall be measured to you again."},{"r":"Luke 9:23","t":"And he said to them all, If any man will come after me, let him deny himself, and take up his cross daily, and follow me."},{"r":"Luke 10:27","t":"And he answering said, Thou shalt love the Lord thy God with all thy heart, and with all thy soul, and with all thy strength, and with all thy mind; and thy neighbour as thyself."},{"r":"Luke 12:32","t":"Fear not, little flock; for it is your Father’s good pleasure to give you the kingdom."},{"r":"Luke 12:34","t":"For where your treasure is, there will your heart be also."},{"r":"Luke 15:7","t":"I say unto you, that likewise joy shall be in heaven over one sinner that repenteth, more than over ninety and nine just persons, which need no repentance."},{"r":"Luke 19:10","t":"For the Son of man is come to seek and to save that which was lost."},{"r":"Luke 24:6","t":"He is not here, but is risen: remember how he spake unto you when he was yet in Galilee,"},{"r":"John 1:1","t":"In the beginning was the Word, and the Word was with God, and the Word was God."},{"r":"John 1:5","t":"And the light shineth in darkness; and the darkness comprehended it not."},{"r":"John 1:12","t":"But as many as received him, to them gave he power to become the sons of God, even to them that believe on his name:"},{"r":"John 1:14","t":"And the Word was made flesh, and dwelt among us, (and we beheld his glory, the glory as of the only begotten of the Father,) full of grace and truth."},{"r":"John 1:29","t":"The next day John seeth Jesus coming unto him, and saith, Behold the Lamb of God, which taketh away the sin of the world."},{"r":"John 3:3","t":"Jesus answered and said unto him, Verily, verily, I say unto thee, Except a man be born again, he cannot see the kingdom of God."},{"r":"John 3:16","t":"For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life."},{"r":"John 3:17","t":"For God sent not his Son into the world to condemn the world; but that the world through him might be saved."},{"r":"John 3:30","t":"He must increase, but I must decrease."},{"r":"John 4:24","t":"God is a Spirit: and they that worship him must worship him in spirit and in truth."},{"r":"John 6:35","t":"And Jesus said unto them, I am the bread of life: he that cometh to me shall never hunger; and he that believeth on me shall never thirst."},{"r":"John 8:12","t":"Then spake Jesus again unto them, saying, I am the light of the world: he that followeth me shall not walk in darkness, but shall have the light of life."},{"r":"John 8:32","t":"And ye shall know the truth, and the truth shall make you free."},{"r":"John 10:10","t":"The thief cometh not, but for to steal, and to kill, and to destroy: I am come that they might have life, and that they might have it more abundantly."},{"r":"John 10:11","t":"I am the good shepherd: the good shepherd giveth his life for the sheep."},{"r":"John 10:27–28","t":"My sheep hear my voice, and I know them, and they follow me: And I give unto them eternal life; and they shall never perish, neither shall any man pluck them out of my hand."},{"r":"John 11:25–26","t":"Jesus said unto her, I am the resurrection, and the life: he that believeth in me, though he were dead, yet shall he live: And whosoever liveth and believeth in me shall never die. Believest thou this?"},{"r":"John 13:34–35","t":"A new commandment I give unto you, That ye love one another; as I have loved you, that ye also love one another. By this shall all men know that ye are my disciples, if ye have love one to another."},{"r":"John 14:1","t":"Let not your heart be troubled: ye believe in God, believe also in me."},{"r":"John 14:2–3","t":"In my Father’s house are many mansions: if it were not so, I would have told you. I go to prepare a place for you. And if I go and prepare a place for you, I will come again, and receive you unto myself; that where I am, there ye may be also."},{"r":"John 14:6","t":"Jesus saith unto him, I am the way, the truth, and the life: no man cometh unto the Father, but by me."},{"r":"John 14:15","t":"If ye love me, keep my commandments."},{"r":"John 14:26","t":"But the Comforter, which is the Holy Ghost, whom the Father will send in my name, he shall teach you all things, and bring all things to your remembrance, whatsoever I have said unto you."},{"r":"John 14:27","t":"Peace I leave with you, my peace I give unto you: not as the world giveth, give I unto you. Let not your heart be troubled, neither let it be afraid."},{"r":"John 15:5","t":"I am the vine, ye are the branches: He that abideth in me, and I in him, the same bringeth forth much fruit: for without me ye can do nothing."},{"r":"John 15:11","t":"These things have I spoken unto you, that my joy might remain in you, and that your joy might be full."},{"r":"John 15:13","t":"Greater love hath no man than this, that a man lay down his life for his friends."},{"r":"John 16:33","t":"These things I have spoken unto you, that in me ye might have peace. In the world ye shall have tribulation: but be of good cheer; I have overcome the world."},{"r":"John 17:3","t":"And this is life eternal, that they might know thee the only true God, and Jesus Christ, whom thou hast sent."},{"r":"John 20:29","t":"Jesus saith unto him, Thomas, because thou hast seen me, thou hast believed: blessed are they that have not seen, and yet have believed."},{"r":"Acts 1:8","t":"But ye shall receive power, after that the Holy Ghost is come upon you: and ye shall be witnesses unto me both in Jerusalem, and in all Judaea, and in Samaria, and unto the uttermost part of the earth."},{"r":"Acts 2:38","t":"Then Peter said unto them, Repent, and be baptized every one of you in the name of Jesus Christ for the remission of sins, and ye shall receive the gift of the Holy Ghost."},{"r":"Acts 2:42","t":"And they continued stedfastly in the apostles’ doctrine and fellowship, and in breaking of bread, and in prayers."},{"r":"Acts 4:12","t":"Neither is there salvation in any other: for there is none other name under heaven given among men, whereby we must be saved."},{"r":"Acts 16:31","t":"And they said, Believe on the Lord Jesus Christ, and thou shalt be saved, and thy house."},{"r":"Acts 17:28","t":"For in him we live, and move, and have our being; as certain also of your own poets have said, For we are also his offspring."},{"r":"Acts 20:24","t":"But none of these things move me, neither count I my life dear unto myself, so that I might finish my course with joy, and the ministry, which I have received of the Lord Jesus, to testify the gospel of the grace of God."},{"r":"Acts 20:35","t":"I have shewed you all things, how that so labouring ye ought to support the weak, and to remember the words of the Lord Jesus, how he said, It is more blessed to give than to receive."},{"r":"Romans 1:16","t":"For I am not ashamed of the gospel of Christ: for it is the power of God unto salvation to every one that believeth; to the Jew first, and also to the Greek."},{"r":"Romans 3:23–24","t":"For all have sinned, and come short of the glory of God; Being justified freely by his grace through the redemption that is in Christ Jesus:"},{"r":"Romans 5:1","t":"Therefore being justified by faith, we have peace with God through our Lord Jesus Christ:"},{"r":"Romans 5:3–4","t":"And not only so, but we glory in tribulations also: knowing that tribulation worketh patience; And patience, experience; and experience, hope:"},{"r":"Romans 5:8","t":"But God commendeth his love toward us, in that, while we were yet sinners, Christ died for us."},{"r":"Romans 6:23","t":"For the wages of sin is death; but the gift of God is eternal life through Jesus Christ our Lord."},{"r":"Romans 8:1","t":"There is therefore now no condemnation to them which are in Christ Jesus, who walk not after the flesh, but after the Spirit."},{"r":"Romans 8:18","t":"For I reckon that the sufferings of this present time are not worthy to be compared with the glory which shall be revealed in us."},{"r":"Romans 8:26","t":"Likewise the Spirit also helpeth our infirmities: for we know not what we should pray for as we ought: but the Spirit itself maketh intercession for us with groanings which cannot be uttered."},{"r":"Romans 8:28","t":"And we know that all things work together for good to them that love God, to them who are the called according to his purpose."},{"r":"Romans 8:31","t":"What shall we then say to these things? If God be for us, who can be against us?"},{"r":"Romans 8:37","t":"Nay, in all these things we are more than conquerors through him that loved us."},{"r":"Romans 8:38–39","t":"For I am persuaded, that neither death, nor life, nor angels, nor principalities, nor powers, nor things present, nor things to come, Nor height, nor depth, nor any other creature, shall be able to separate us from the love of God, which is in Christ Jesus our Lord."},{"r":"Romans 10:9","t":"That if thou shalt confess with thy mouth the Lord Jesus, and shalt believe in thine heart that God hath raised him from the dead, thou shalt be saved."},{"r":"Romans 12:1","t":"I beseech you therefore, brethren, by the mercies of God, that ye present your bodies a living sacrifice, holy, acceptable unto God, which is your reasonable service."},{"r":"Romans 12:2","t":"And be not conformed to this world: but be ye transformed by the renewing of your mind, that ye may prove what is that good, and acceptable, and perfect, will of God."},{"r":"Romans 12:12","t":"Rejoicing in hope; patient in tribulation; continuing instant in prayer;"},{"r":"Romans 12:21","t":"Be not overcome of evil, but overcome evil with good."},{"r":"Romans 15:13","t":"Now the God of hope fill you with all joy and peace in believing, that ye may abound in hope, through the power of the Holy Ghost."},{"r":"1 Corinthians 1:18","t":"For the preaching of the cross is to them that perish foolishness; but unto us which are saved it is the power of God."},{"r":"1 Corinthians 2:9","t":"But as it is written, Eye hath not seen, nor ear heard, neither have entered into the heart of man, the things which God hath prepared for them that love him."},{"r":"1 Corinthians 6:19–20","t":"What? know ye not that your body is the temple of the Holy Ghost which is in you, which ye have of God, and ye are not your own? For ye are bought with a price: therefore glorify God in your body, and in your spirit, which are God’s."},{"r":"1 Corinthians 10:13","t":"There hath no temptation taken you but such as is common to man: but God is faithful, who will not suffer you to be tempted above that ye are able; but will with the temptation also make a way to escape, that ye may be able to bear it."},{"r":"1 Corinthians 10:31","t":"Whether therefore ye eat, or drink, or whatsoever ye do, do all to the glory of God."},{"r":"1 Corinthians 13:4–5","t":"Charity suffereth long, and is kind; charity envieth not; charity vaunteth not itself, is not puffed up, Doth not behave itself unseemly, seeketh not her own, is not easily provoked, thinketh no evil;"},{"r":"1 Corinthians 13:7","t":"Beareth all things, believeth all things, hopeth all things, endureth all things."},{"r":"1 Corinthians 13:13","t":"And now abideth faith, hope, charity, these three; but the greatest of these is charity."},{"r":"1 Corinthians 15:3–4","t":"For I delivered unto you first of all that which I also received, how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures:"},{"r":"1 Corinthians 15:58","t":"Therefore, my beloved brethren, be ye stedfast, unmoveable, always abounding in the work of the Lord, forasmuch as ye know that your labour is not in vain in the Lord."},{"r":"2 Corinthians 1:3–4","t":"Blessed be God, even the Father of our Lord Jesus Christ, the Father of mercies, and the God of all comfort; Who comforteth us in all our tribulation, that we may be able to comfort them which are in any trouble, by the comfort wherewith we ourselves are comforted of God."},{"r":"2 Corinthians 3:17","t":"Now the Lord is that Spirit: and where the Spirit of the Lord is, there is liberty."},{"r":"2 Corinthians 4:17–18","t":"For our light affliction, which is but for a moment, worketh for us a far more exceeding and eternal weight of glory; While we look not at the things which are seen, but at the things which are not seen: for the things which are seen are temporal; but the things which are not seen are eternal."},{"r":"2 Corinthians 5:7","t":"(For we walk by faith, not by sight:)"},{"r":"2 Corinthians 5:17","t":"Therefore if any man be in Christ, he is a new creature: old things are passed away; behold, all things are become new."},{"r":"2 Corinthians 5:21","t":"For he hath made him to be sin for us, who knew no sin; that we might be made the righteousness of God in him."},{"r":"2 Corinthians 9:7","t":"Every man according as he purposeth in his heart, so let him give; not grudgingly, or of necessity: for God loveth a cheerful giver."},{"r":"2 Corinthians 12:9","t":"And he said unto me, My grace is sufficient for thee: for my strength is made perfect in weakness. Most gladly therefore will I rather glory in my infirmities, that the power of Christ may rest upon me."},{"r":"2 Corinthians 13:14","t":"The grace of the Lord Jesus Christ, and the love of God, and the communion of the Holy Ghost, be with you all. Amen."},{"r":"Galatians 2:20","t":"I am crucified with Christ: nevertheless I live; yet not I, but Christ liveth in me: and the life which I now live in the flesh I live by the faith of the Son of God, who loved me, and gave himself for me."},{"r":"Galatians 5:1","t":"Stand fast therefore in the liberty wherewith Christ hath made us free, and be not entangled again with the yoke of bondage."},{"r":"Galatians 5:22–23","t":"But the fruit of the Spirit is love, joy, peace, longsuffering, gentleness, goodness, faith, Meekness, temperance: against such there is no law."},{"r":"Galatians 6:2","t":"Bear ye one another’s burdens, and so fulfil the law of Christ."},{"r":"Galatians 6:9","t":"And let us not be weary in well doing: for in due season we shall reap, if we faint not."},{"r":"Ephesians 2:8–9","t":"For by grace are ye saved through faith; and that not of yourselves: it is the gift of God: Not of works, lest any man should boast."},{"r":"Ephesians 2:10","t":"For we are his workmanship, created in Christ Jesus unto good works, which God hath before ordained that we should walk in them."},{"r":"Ephesians 3:17–19","t":"That Christ may dwell in your hearts by faith; that ye, being rooted and grounded in love, May be able to comprehend with all saints what is the breadth, and length, and depth, and height; And to know the love of Christ, which passeth knowledge, that ye might be filled with all the fulness of God."},{"r":"Ephesians 3:20","t":"Now unto him that is able to do exceeding abundantly above all that we ask or think, according to the power that worketh in us,"},{"r":"Ephesians 4:2–3","t":"With all lowliness and meekness, with longsuffering, forbearing one another in love; Endeavouring to keep the unity of the Spirit in the bond of peace."},{"r":"Ephesians 4:29","t":"Let no corrupt communication proceed out of your mouth, but that which is good to the use of edifying, that it may minister grace unto the hearers."},{"r":"Ephesians 4:32","t":"And be ye kind one to another, tenderhearted, forgiving one another, even as God for Christ’s sake hath forgiven you."},{"r":"Ephesians 6:10–11","t":"Finally, my brethren, be strong in the Lord, and in the power of his might. Put on the whole armour of God, that ye may be able to stand against the wiles of the devil."},{"r":"Philippians 1:6","t":"Being confident of this very thing, that he which hath begun a good work in you will perform it until the day of Jesus Christ:"},{"r":"Philippians 1:21","t":"For to me to live is Christ, and to die is gain."},{"r":"Philippians 2:3–4","t":"Let nothing be done through strife or vainglory; but in lowliness of mind let each esteem other better than themselves. Look not every man on his own things, but every man also on the things of others."},{"r":"Philippians 2:9–11","t":"Wherefore God also hath highly exalted him, and given him a name which is above every name: That at the name of Jesus every knee should bow, of things in heaven, and things in earth, and things under the earth; And that every tongue should confess that Jesus Christ is Lord, to the glory of God the Father."},{"r":"Philippians 3:13–14","t":"Brethren, I count not myself to have apprehended: but this one thing I do, forgetting those things which are behind, and reaching forth unto those things which are before, I press toward the mark for the prize of the high calling of God in Christ Jesus."},{"r":"Philippians 4:4","t":"Rejoice in the Lord alway: and again I say, Rejoice."},{"r":"Philippians 4:6–7","t":"Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God. And the peace of God, which passeth all understanding, shall keep your hearts and minds through Christ Jesus."},{"r":"Philippians 4:8","t":"Finally, brethren, whatsoever things are true, whatsoever things are honest, whatsoever things are just, whatsoever things are pure, whatsoever things are lovely, whatsoever things are of good report; if there be any virtue, and if there be any praise, think on these things."},{"r":"Philippians 4:13","t":"I can do all things through Christ which strengtheneth me."},{"r":"Philippians 4:19","t":"But my God shall supply all your need according to his riches in glory by Christ Jesus."},{"r":"Colossians 1:17","t":"And he is before all things, and by him all things consist."},{"r":"Colossians 3:12","t":"Put on therefore, as the elect of God, holy and beloved, bowels of mercies, kindness, humbleness of mind, meekness, longsuffering;"},{"r":"Colossians 3:15","t":"And let the peace of God rule in your hearts, to the which also ye are called in one body; and be ye thankful."},{"r":"Colossians 3:17","t":"And whatsoever ye do in word or deed, do all in the name of the Lord Jesus, giving thanks to God and the Father by him."},{"r":"Colossians 3:23","t":"And whatsoever ye do, do it heartily, as to the Lord, and not unto men;"},{"r":"1 Thessalonians 5:11","t":"Wherefore comfort yourselves together, and edify one another, even as also ye do."},{"r":"1 Thessalonians 5:16–18","t":"Rejoice evermore. Pray without ceasing. In every thing give thanks: for this is the will of God in Christ Jesus concerning you."},{"r":"2 Thessalonians 3:3","t":"But the Lord is faithful, who shall stablish you, and keep you from evil."},{"r":"1 Timothy 4:12","t":"Let no man despise thy youth; but be thou an example of the believers, in word, in conversation, in charity, in spirit, in faith, in purity."},{"r":"1 Timothy 6:6","t":"But godliness with contentment is great gain."},{"r":"2 Timothy 1:7","t":"For God hath not given us the spirit of fear; but of power, and of love, and of a sound mind."},{"r":"2 Timothy 2:15","t":"Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."},{"r":"2 Timothy 3:16–17","t":"All scripture is given by inspiration of God, and is profitable for doctrine, for reproof, for correction, for instruction in righteousness: That the man of God may be perfect, throughly furnished unto all good works."},{"r":"2 Timothy 4:7","t":"I have fought a good fight, I have finished my course, I have kept the faith:"},{"r":"Titus 3:5","t":"Not by works of righteousness which we have done, but according to his mercy he saved us, by the washing of regeneration, and renewing of the Holy Ghost;"},{"r":"Hebrews 4:12","t":"For the word of God is quick, and powerful, and sharper than any twoedged sword, piercing even to the dividing asunder of soul and spirit, and of the joints and marrow, and is a discerner of the thoughts and intents of the heart."},{"r":"Hebrews 4:16","t":"Let us therefore come boldly unto the throne of grace, that we may obtain mercy, and find grace to help in time of need."},{"r":"Hebrews 10:23","t":"Let us hold fast the profession of our faith without wavering; (for he is faithful that promised;)"},{"r":"Hebrews 10:24–25","t":"And let us consider one another to provoke unto love and to good works: Not forsaking the assembling of ourselves together, as the manner of some is; but exhorting one another: and so much the more, as ye see the day approaching."},{"r":"Hebrews 11:1","t":"Now faith is the substance of things hoped for, the evidence of things not seen."},{"r":"Hebrews 11:6","t":"But without faith it is impossible to please him: for he that cometh to God must believe that he is, and that he is a rewarder of them that diligently seek him."},{"r":"Hebrews 12:1–2","t":"Wherefore seeing we also are compassed about with so great a cloud of witnesses, let us lay aside every weight, and the sin which doth so easily beset us, and let us run with patience the race that is set before us, Looking unto Jesus the author and finisher of our faith; who for the joy that was set before him endured the cross, despising the shame, and is set down at the right hand of the throne of God."},{"r":"Hebrews 12:11","t":"Now no chastening for the present seemeth to be joyous, but grievous: nevertheless afterward it yieldeth the peaceable fruit of righteousness unto them which are exercised thereby."},{"r":"Hebrews 13:5","t":"Let your conversation be without covetousness; and be content with such things as ye have: for he hath said, I will never leave thee, nor forsake thee."},{"r":"Hebrews 13:8","t":"Jesus Christ the same yesterday, and to day, and for ever."},{"r":"James 1:2–3","t":"My brethren, count it all joy when ye fall into divers temptations; Knowing this, that the trying of your faith worketh patience."},{"r":"James 1:5","t":"If any of you lack wisdom, let him ask of God, that giveth to all men liberally, and upbraideth not; and it shall be given him."},{"r":"James 1:12","t":"Blessed is the man that endureth temptation: for when he is tried, he shall receive the crown of life, which the Lord hath promised to them that love him."},{"r":"James 1:17","t":"Every good gift and every perfect gift is from above, and cometh down from the Father of lights, with whom is no variableness, neither shadow of turning."},{"r":"James 1:19","t":"Wherefore, my beloved brethren, let every man be swift to hear, slow to speak, slow to wrath:"},{"r":"James 1:22","t":"But be ye doers of the word, and not hearers only, deceiving your own selves."},{"r":"James 4:7","t":"Submit yourselves therefore to God. Resist the devil, and he will flee from you."},{"r":"James 4:8","t":"Draw nigh to God, and he will draw nigh to you. Cleanse your hands, ye sinners; and purify your hearts, ye double minded."},{"r":"James 5:16","t":"Confess your faults one to another, and pray one for another, that ye may be healed. The effectual fervent prayer of a righteous man availeth much."},{"r":"1 Peter 1:3","t":"Blessed be the God and Father of our Lord Jesus Christ, which according to his abundant mercy hath begotten us again unto a lively hope by the resurrection of Jesus Christ from the dead,"},{"r":"1 Peter 2:9","t":"But ye are a chosen generation, a royal priesthood, an holy nation, a peculiar people; that ye should shew forth the praises of him who hath called you out of darkness into his marvellous light:"},{"r":"1 Peter 3:15","t":"But sanctify the Lord God in your hearts: and be ready always to give an answer to every man that asketh you a reason of the hope that is in you with meekness and fear:"},{"r":"1 Peter 4:8","t":"And above all things have fervent charity among yourselves: for charity shall cover the multitude of sins."},{"r":"1 Peter 4:10","t":"As every man hath received the gift, even so minister the same one to another, as good stewards of the manifold grace of God."},{"r":"1 Peter 5:6–7","t":"Humble yourselves therefore under the mighty hand of God, that he may exalt you in due time: Casting all your care upon him; for he careth for you."},{"r":"1 Peter 5:8","t":"Be sober, be vigilant; because your adversary the devil, as a roaring lion, walketh about, seeking whom he may devour:"},{"r":"2 Peter 1:3","t":"According as his divine power hath given unto us all things that pertain unto life and godliness, through the knowledge of him that hath called us to glory and virtue:"},{"r":"2 Peter 3:9","t":"The Lord is not slack concerning his promise, as some men count slackness; but is longsuffering to us-ward, not willing that any should perish, but that all should come to repentance."},{"r":"1 John 1:9","t":"If we confess our sins, he is faithful and just to forgive us our sins, and to cleanse us from all unrighteousness."},{"r":"1 John 3:1","t":"Behold, what manner of love the Father hath bestowed upon us, that we should be called the sons of God: therefore the world knoweth us not, because it knew him not."},{"r":"1 John 3:18","t":"My little children, let us not love in word, neither in tongue; but in deed and in truth."},{"r":"1 John 4:4","t":"Ye are of God, little children, and have overcome them: because greater is he that is in you, than he that is in the world."},{"r":"1 John 4:7","t":"Beloved, let us love one another: for love is of God; and every one that loveth is born of God, and knoweth God."},{"r":"1 John 4:10","t":"Herein is love, not that we loved God, but that he loved us, and sent his Son to be the propitiation for our sins."},{"r":"1 John 4:18","t":"There is no fear in love; but perfect love casteth out fear: because fear hath torment. He that feareth is not made perfect in love."},{"r":"1 John 4:19","t":"We love him, because he first loved us."},{"r":"1 John 5:4","t":"For whatsoever is born of God overcometh the world: and this is the victory that overcometh the world, even our faith."},{"r":"1 John 5:14","t":"And this is the confidence that we have in him, that, if we ask any thing according to his will, he heareth us:"},{"r":"Jude 1:24–25","t":"Now unto him that is able to keep you from falling, and to present you faultless before the presence of his glory with exceeding joy, To the only wise God our Saviour, be glory and majesty, dominion and power, both now and ever. Amen."},{"r":"Revelation 1:8","t":"I am Alpha and Omega, the beginning and the ending, saith the Lord, which is, and which was, and which is to come, the Almighty."},{"r":"Revelation 3:20","t":"Behold, I stand at the door, and knock: if any man hear my voice, and open the door, I will come in to him, and will sup with him, and he with me."},{"r":"Revelation 4:11","t":"Thou art worthy, O Lord, to receive glory and honour and power: for thou hast created all things, and for thy pleasure they are and were created."},{"r":"Revelation 5:12","t":"Saying with a loud voice, Worthy is the Lamb that was slain to receive power, and riches, and wisdom, and strength, and honour, and glory, and blessing."},{"r":"Revelation 21:4","t":"And God shall wipe away all tears from their eyes; and there shall be no more death, neither sorrow, nor crying, neither shall there be any more pain: for the former things are passed away."},{"r":"Revelation 21:5","t":"And he that sat upon the throne said, Behold, I make all things new. And he said unto me, Write: for these words are true and faithful."},{"r":"Revelation 22:13","t":"I am Alpha and Omega, the beginning and the end, the first and the last."},{"r":"Revelation 22:20","t":"He which testifieth these things saith, Surely I come quickly. Amen. Even so, come, Lord Jesus."}];
+
+/* ============ day logic ============ */
+let offset = 0; // days from today, for browsing
+
+function dayInfo(){
+  const now = new Date();
+  const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset);
+  const start = new Date(d.getFullYear(), 0, 1);
+  const doy = Math.floor((d - start) / 86400000) + 1;
+  return { d, doy };
+}
+function todayKey(){
+  const t = new Date();
+  return t.getFullYear() + "-" + String(t.getMonth()+1).padStart(2,"0") + "-" + String(t.getDate()).padStart(2,"0");
+}
+
+/* ============ catechism (loaded from catechism.json, cached) ============ */
+let CAT = null;
+function loadCatechism(){
+  try {
+    const cached = localStorage.getItem("abbey.catechism");
+    if (cached) { CAT = JSON.parse(cached); render(); }
+  } catch(e){}
+  fetch("catechism.json", {cache:"no-cache"})
+    .then(r => { if (!r.ok) throw 0; return r.json(); })
+    .then(data => {
+      if (Array.isArray(data) && data.length) {
+        CAT = data;
+        try { localStorage.setItem("abbey.catechism", JSON.stringify(data)); } catch(e){}
+        render();
+      }
+    })
+    .catch(() => { if (!CAT) render(); });
+}
+
+/* ============ prayer list state ============ */
+function loadPeople(){
+  try { return JSON.parse(localStorage.getItem("abbey.people")) || []; }
+  catch(e){ return []; }
+}
+function savePeople(p){ localStorage.setItem("abbey.people", JSON.stringify(p)); }
+function loadChecks(){
+  let all = {};
+  try { all = JSON.parse(localStorage.getItem("abbey.checks")) || {}; } catch(e){}
+  const key = todayKey();
+  const today = all[key] || [];
+  // prune old days
+  const fresh = {}; fresh[key] = today;
+  localStorage.setItem("abbey.checks", JSON.stringify(fresh));
+  return today;
+}
+function saveChecks(ids){
+  const fresh = {}; fresh[todayKey()] = ids;
+  localStorage.setItem("abbey.checks", JSON.stringify(fresh));
+}
+
+/* ============ rendering ============ */
+const $ = id => document.getElementById(id);
+
+function render(){
+  const { d, doy } = dayInfo();
+  const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  $("dateline").textContent = days[d.getDay()] + ", " + months[d.getMonth()] + " " + d.getDate();
+  $("todayBtn").classList.toggle("show", offset !== 0);
+
+  // verse
+  const v = VERSES[((doy - 1) % 365 + 365) % 365];
+  $("verseEyebrow").textContent = "The Word \u00b7 Day " + doy;
+  $("verseText").textContent = v.t;
+  $("verseRef").textContent = v.r;
+
+  // catechism
+  const card = $("catCard");
+  if (CAT && CAT.length) {
+    const q = CAT[((doy - 1) % CAT.length + CAT.length) % CAT.length];
+    $("catEyebrow").textContent = "To Be a Christian \u00b7 Question " + q.n + " of " + CAT.length;
+    let ans = q.a, refs = "";
+    const m = ans.match(/\(([^()]*\d[^()]*)\)\s*$/);
+    if (m) { refs = m[0]; ans = ans.slice(0, m.index).trim(); }
+    card.innerHTML =
+      '<p class="cat-q"><span class="qmark">Q.</span>' + esc(q.q) + '</p>' +
+      '<p class="cat-a"><span class="amark">A.</span>' + esc(ans) + '</p>' +
+      (refs ? '<p class="cat-refs">' + esc(refs) + '</p>' : '') +
+      '<p class="cat-source">To Be a Christian: An Anglican Catechism<br>&copy; 2020 The Anglican Church in North America</p>';
+  } else {
+    $("catEyebrow").textContent = "To Be a Christian";
+    card.innerHTML =
+      '<div class="setup-card">The catechism is not loaded yet. Upload <code>catechism.json</code> to the same folder as this app (see the README for the one-step script), then reopen the app.</div>';
+  }
+
+  renderPrayer();
+}
+
+function esc(s){
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function renderPrayer(){
+  const people = loadPeople();
+  const checks = loadChecks();
+  const list = $("prayList");
+  list.innerHTML = "";
+  $("prayEmpty").style.display = people.length ? "none" : "block";
+  people.forEach(p => {
+    const li = document.createElement("li");
+    li.className = "pray-row" + (checks.includes(p.id) ? " done" : "");
+    li.setAttribute("role","checkbox");
+    li.setAttribute("aria-checked", checks.includes(p.id));
+    li.tabIndex = 0;
+    li.innerHTML =
+      '<span class="pmark"><svg viewBox="0 0 24 24" fill="none" stroke="#f3ede1" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9.5 18 20 6.5"/></svg></span>' +
+      '<span><span class="pname">' + esc(p.name) + '</span>' +
+      (p.note ? '<div class="pnote">' + esc(p.note) + '</div>' : '') + '</span>' +
+      '<button class="premove" aria-label="Remove ' + esc(p.name) + '">Remove</button>';
+    li.addEventListener("click", e => {
+      if (e.target.closest(".premove")) {
+        if (confirm("Remove " + p.name + " from your prayer list?")) {
+          savePeople(loadPeople().filter(x => x.id !== p.id));
+          renderPrayer();
+        }
+        return;
+      }
+      if (document.body.classList.contains("editing")) return;
+      const cur = loadChecks();
+      const next = cur.includes(p.id) ? cur.filter(i => i !== p.id) : cur.concat(p.id);
+      saveChecks(next);
+      renderPrayer();
+    });
+    li.addEventListener("keydown", e => {
+      if (e.key === " " || e.key === "Enter") { e.preventDefault(); li.click(); }
+    });
+    list.appendChild(li);
+  });
+  const done = people.filter(p => checks.includes(p.id)).length;
+  $("prayProgress").textContent = people.length ? done + " of " + people.length : "";
+  $("prayDone").classList.toggle("show", people.length > 0 && done === people.length);
+}
+
+/* ============ interactions ============ */
+document.querySelectorAll(".tab").forEach(t => {
+  t.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+    document.querySelectorAll("section").forEach(x => x.classList.remove("active"));
+    t.classList.add("active");
+    $(t.dataset.tab).classList.add("active");
+    window.scrollTo({top:0});
+  });
+});
+$("prevDay").addEventListener("click", () => { offset--; render(); });
+$("nextDay").addEventListener("click", () => { offset++; render(); });
+$("todayBtn").addEventListener("click", () => { offset = 0; render(); });
+
+$("addBtn").addEventListener("click", () => {
+  $("addForm").classList.add("show");
+  $("nameInput").focus();
+});
+$("cancelBtn").addEventListener("click", () => {
+  $("addForm").classList.remove("show");
+  $("nameInput").value = ""; $("noteInput").value = "";
+});
+$("saveBtn").addEventListener("click", () => {
+  const name = $("nameInput").value.trim();
+  if (!name) { $("nameInput").focus(); return; }
+  const people = loadPeople();
+  people.push({ id: Date.now() + "-" + Math.random().toString(36).slice(2,7), name, note: $("noteInput").value.trim() });
+  savePeople(people);
+  $("nameInput").value = ""; $("noteInput").value = "";
+  $("nameInput").focus();
+  renderPrayer();
+});
+$("nameInput").addEventListener("keydown", e => { if (e.key === "Enter") $("saveBtn").click(); });
+$("noteInput").addEventListener("keydown", e => { if (e.key === "Enter") $("saveBtn").click(); });
+$("editBtn").addEventListener("click", () => {
+  document.body.classList.toggle("editing");
+  $("editBtn").textContent = document.body.classList.contains("editing") ? "Done" : "Edit list";
+});
+
+/* midnight rollover while app stays open */
+let lastKey = todayKey();
+setInterval(() => {
+  if (todayKey() !== lastKey) { lastKey = todayKey(); offset = 0; render(); }
+}, 60000);
+
+/* ============ boot ============ */
+render();
+loadCatechism();
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").catch(()=>{});
+}
+</script>
+</body>
+</html>
